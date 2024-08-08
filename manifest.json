@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "News Feed",
+  "version": "1.0",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://*.slack.com/*"
+  ],
+  "options_page": "options.html"
+}
