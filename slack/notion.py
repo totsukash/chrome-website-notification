@@ -3,8 +3,21 @@ import os
 import requests
 import json
 from dotenv import load_dotenv
+from bs4 import BeautifulSoup
 
 load_dotenv()
+
+
+def get_ogp_image_url(url):
+    try:
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        og_image = soup.find('meta', property='og:image')
+        if og_image:
+            return og_image['content']
+    except Exception as e:
+        print(f"OGP画像の取得中にエラーが発生しました: {e}")
+    return None
 
 
 def insert_notion_record(database_id, api_key, data):
@@ -34,16 +47,18 @@ def insert_notion_record(database_id, api_key, data):
 
 # 使用例
 
+url = "https://deepgram.com/learn/top-arxiv-papers-about-ai-agents"
+
 data = {
     "title": {"title": [{"text": {"content": "AI Agentの論文TOP10"}}]},
-    "url": {"url": "https://deepgram.com/learn/top-arxiv-papers-about-ai-agents"},
+    "url": {"url": url},
     "summary": {"rich_text": [{"text": {"content": "AI論文の中身を要約したものです。"}}]},
     "thumbnail": {
         "files": [
             {
                 "name": "thumbnail.jpg",
                 "external": {
-                    "url": "https://img2.lancers.jp/portfolio/580888/2943702/d6b298fe22d17b1dcd6f0f52c6a88eeae39f74b6e22d807a7b9a434ff0187a5e/31399748_1000_0.jpg"
+                    "url": get_ogp_image_url(url)
                 }
             }
         ]
