@@ -15,13 +15,13 @@ slack_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
 SLACK_CHANNEL = "C011AR9LM7H"
 
 
-class SlackMessage(BaseModel):
-    message: str
-
-
 @app.get("/healthcheck")
 def healthcheck():
     return "OK"
+
+
+class SlackMessage(BaseModel):
+    message: str
 
 
 @app.post("/slack/post")
@@ -41,14 +41,18 @@ async def slack_post(slack_message: SlackMessage):
             status_code=500,
             detail=f"Failed to send message to Slack: {str(e)}",
         )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"An unexpected error occurred: {str(e)}",
+        )
 
 
 # FastAPIのイベントハンドラ
 @app.on_event("startup")
 async def startup():
     """アプリの起動時の処理"""
-    if not os.environ.get("SLACK_BOT_TOKEN"):
-        raise ValueError("SLACK_BOT_TOKEN must be set in the environment variables")
+    pass
 
 
 if __name__ == "__main__":
