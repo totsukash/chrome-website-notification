@@ -66,7 +66,7 @@ ogp_data = get_ogp_data(url)
 data = {
     "title": {"title": [{"text": {"content": ogp_data['title']}}]},
     "url": {"url": url},
-    "summary": {"rich_text": [{"text": {"content": "AI論文の中身を要約したものです。"}}]},
+    # "summary": {"rich_text": [{"text": {"content": ""}}]},
     "thumbnail": {
         "files": [
             {
