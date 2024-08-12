@@ -16,7 +16,7 @@ git clone git@github.com:totsukash/chrome-website-notification.git
 
 1. [Chrome拡張機能](chrome://extensions/)を開き、右上の`デベロッパーモード`を有効にします。
 2. `パッケージ化されていない拡張機能を読み込む`をクリックし、クローンしたリポジトリのディレクトリ(
-   chrome-website-notification )を選択します。
+   chrome-website-notification/chrome )を選択します。
 
 #### 3. SlackのWebhook URLを取得します
 
