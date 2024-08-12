@@ -1,5 +1,4 @@
 import os
-
 import requests
 import json
 from dotenv import load_dotenv
@@ -8,20 +7,30 @@ from bs4 import BeautifulSoup
 load_dotenv()
 
 OTHER_THUMBNAIL_URL = "https://placehold.jp/30/cbcde7/ffffff/300x150.png?text=news"
+DEFAULT_TITLE = "No Title"
 
 
-def get_ogp_image_url(url):
+def get_ogp_data(url):
     try:
         response = requests.get(url)
         soup = BeautifulSoup(response.text, 'html.parser')
+
         og_image = soup.find('meta', property='og:image')
-        if og_image:
-            return og_image['content']
-        else:
-            return OTHER_THUMBNAIL_URL
+        image_url = og_image['content'] if og_image else OTHER_THUMBNAIL_URL
+
+        og_title = soup.find('meta', property='og:title')
+        title = og_title['content'] if og_title else DEFAULT_TITLE
+
+        return {
+            'image_url': image_url,
+            'title': title
+        }
     except Exception as e:
-        print(f"OGP画像の取得中にエラーが発生しました: {e}")
-    return OTHER_THUMBNAIL_URL
+        print(f"OGPデータの取得中にエラーが発生しました: {e}")
+        return {
+            'image_url': OTHER_THUMBNAIL_URL,
+            'title': DEFAULT_TITLE
+        }
 
 
 def insert_notion_record(database_id, api_key, data):
@@ -49,12 +58,13 @@ def insert_notion_record(database_id, api_key, data):
         return None
 
 
-# 使用例
+# TODO: URLを受け取るように修正
+url = "https://note.com/sergicalsix_/n/n5b4fe73c10cc"
 
-url = "https://x.com/kanpo_blog/status/1822938715599286551"
+ogp_data = get_ogp_data(url)
 
 data = {
-    "title": {"title": [{"text": {"content": "AI Agentの論文TOP10"}}]},
+    "title": {"title": [{"text": {"content": ogp_data['title']}}]},
     "url": {"url": url},
     "summary": {"rich_text": [{"text": {"content": "AI論文の中身を要約したものです。"}}]},
     "thumbnail": {
@@ -62,7 +72,7 @@ data = {
             {
                 "name": "thumbnail.jpg",
                 "external": {
-                    "url": get_ogp_image_url(url)
+                    "url": ogp_data['image_url']
                 }
             }
         ]
