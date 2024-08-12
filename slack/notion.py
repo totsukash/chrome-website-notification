@@ -58,29 +58,27 @@ def insert_notion_record(database_id, api_key, data):
         return None
 
 
-# TODO: URLを受け取るように修正
-url = "https://note.com/sergicalsix_/n/n5b4fe73c10cc"
+def store(url: str):
+    ogp_data = get_ogp_data(url)
 
-ogp_data = get_ogp_data(url)
-
-data = {
-    "title": {"title": [{"text": {"content": ogp_data['title']}}]},
-    "url": {"url": url},
-    # "summary": {"rich_text": [{"text": {"content": ""}}]},
-    "thumbnail": {
-        "files": [
-            {
-                "name": "thumbnail.jpg",
-                "external": {
-                    "url": ogp_data['image_url']
+    data = {
+        "title": {"title": [{"text": {"content": ogp_data['title']}}]},
+        "url": {"url": url},
+        # "summary": {"rich_text": [{"text": {"content": ""}}]},
+        "thumbnail": {
+            "files": [
+                {
+                    "name": "thumbnail.jpg",
+                    "external": {
+                        "url": ogp_data['image_url']
+                    }
                 }
-            }
-        ]
+            ]
+        }
     }
-}
 
-result = insert_notion_record(
-    os.getenv("NOTION_DATABASE_ID"),
-    os.getenv("NOTION_API_KEY"),
-    data,
-)
+    result = insert_notion_record(
+        os.getenv("NOTION_DATABASE_ID"),
+        os.getenv("NOTION_API_KEY"),
+        data,
+    )

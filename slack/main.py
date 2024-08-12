@@ -1,18 +1,17 @@
-import os
-from fastapi import FastAPI, Request, HTTPException
-from slack_sdk import WebClient
-from slack_sdk.errors import SlackApiError
+from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import slack
+import notion
 
 load_dotenv(verbose=True)
 app = FastAPI()
 
-# Slack WebClientの初期化
-slack_client = WebClient(token=os.environ.get("SLACK_BOT_TOKEN"))
 
-# Slackにメッセージを送信するチャンネルID
-SLACK_CHANNEL = "C011AR9LM7H"
+@app.on_event("startup")
+async def startup():
+    """アプリの起動時の処理"""
+    pass
 
 
 @app.get("/healthcheck")
@@ -20,39 +19,23 @@ def healthcheck():
     return "OK"
 
 
-class SlackMessage(BaseModel):
-    message: str
+class ArticlesReq(BaseModel):
+    channel_id: str
+    url: str
+    user_id: str | None = None
 
 
-@app.post("/slack/post")
-async def slack_post(slack_message: SlackMessage):
-    """Slackにメッセージを送信するエンドポイント"""
-    try:
-        response = slack_client.chat_postMessage(
-            channel=SLACK_CHANNEL,
-            text=slack_message.message
-        )
-        return {
-            "status": "success",
-            "message": "Message sent to Slack",
-        }
-    except SlackApiError as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to send message to Slack: {str(e)}",
-        )
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"An unexpected error occurred: {str(e)}",
-        )
+@app.post("/articles")
+async def retrieve_articles(req: ArticlesReq):
+    # Notionに保存
+    notion.store(req.url)
 
-
-# FastAPIのイベントハンドラ
-@app.on_event("startup")
-async def startup():
-    """アプリの起動時の処理"""
-    pass
+    # Slackに送信
+    slack.post(
+        channel_id=req.channel_id,
+        message=req.url,
+        user_id=req.user_id
+    )
 
 
 if __name__ == "__main__":
