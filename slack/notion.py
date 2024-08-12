@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 
 load_dotenv()
 
+OTHER_THUMBNAIL_URL = "https://placehold.jp/30/cbcde7/ffffff/300x150.png?text=news"
+
 
 def get_ogp_image_url(url):
     try:
@@ -15,9 +17,11 @@ def get_ogp_image_url(url):
         og_image = soup.find('meta', property='og:image')
         if og_image:
             return og_image['content']
+        else:
+            return OTHER_THUMBNAIL_URL
     except Exception as e:
         print(f"OGP画像の取得中にエラーが発生しました: {e}")
-    return None
+    return OTHER_THUMBNAIL_URL
 
 
 def insert_notion_record(database_id, api_key, data):
@@ -47,7 +51,7 @@ def insert_notion_record(database_id, api_key, data):
 
 # 使用例
 
-url = "https://deepgram.com/learn/top-arxiv-papers-about-ai-agents"
+url = "https://x.com/kanpo_blog/status/1822938715599286551"
 
 data = {
     "title": {"title": [{"text": {"content": "AI Agentの論文TOP10"}}]},
