@@ -8,12 +8,6 @@ load_dotenv(verbose=True)
 app = FastAPI()
 
 
-@app.on_event("startup")
-async def startup():
-    """アプリの起動時の処理"""
-    pass
-
-
 @app.get("/healthcheck")
 def healthcheck():
     return "OK"
